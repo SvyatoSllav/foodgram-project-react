@@ -42,6 +42,9 @@ class Recipe(models.Model):
         related_name='recipe'
     )
 
+    def wish_list_count(self):
+        return self.user_wishlist.count()
+
     def delete(self, using=None, keep_parents=False):
         if self.pk is None:
             raise ValueError(
@@ -64,7 +67,8 @@ class Recipe(models.Model):
 
 class Ingridient(models.Model):
     name = models.CharField(
-        max_length=200
+        max_length=200,
+        db_index=True,
     )
     measurement_unit = models.CharField(
         max_length=200
@@ -90,7 +94,8 @@ class RecipeIngridients(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=200
+        max_length=200,
+        db_index=True,
     )
     slug = models.SlugField(
         max_length=200,
