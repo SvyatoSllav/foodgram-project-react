@@ -42,7 +42,6 @@ class SafeUserSerializer(serializers.ModelSerializer):
 
     def _user(self, obj):
         request = self.context.get('request', None)
-        print(self.context)
         if request:
             return request.user
         return obj
