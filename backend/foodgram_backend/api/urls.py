@@ -1,9 +1,8 @@
-from django.urls import path, include
+from django.urls import include, path
 
 from rest_framework.routers import SimpleRouter
 
-from .users_auth.views import UserViewSet, CustomAuthToken, DeleteToken
-
+from .users_auth.views import CustomAuthToken, DeleteToken, UserViewSet
 
 router = SimpleRouter()
 router.register('users', UserViewSet, basename='users')

@@ -1,11 +1,9 @@
-from rest_framework import serializers
-
-from rest_framework.exceptions import ValidationError
-
 from django.contrib.auth import get_user_model, password_validation
 
-from users.models import Follow
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
+from users.models import Follow
 
 User = get_user_model()
 
