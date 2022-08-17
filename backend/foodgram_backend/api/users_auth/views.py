@@ -4,17 +4,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
+from ..paginator import CustomPageNumberPagination
 from .serializers import (GetTokenSerializer, SafeUserSerializer,
                           UserPasswordChangeSerializer, UserSerializer)
-
-from .paginator import CustomPageNumberPagination
-
 
 User = get_user_model()
 
