@@ -43,6 +43,10 @@ class User(AbstractUser):
         blank=True
     )
 
+    def clean(self) -> None:
+        if self.username == 'me':
+            raise ValidationError('Ваше имя не может быть "me".')
+
     def __str__(self) -> str:
         return f'{self.username}'
 
