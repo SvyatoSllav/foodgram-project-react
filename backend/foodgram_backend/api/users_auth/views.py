@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,13 +13,16 @@ from rest_framework.viewsets import ModelViewSet
 from .serializers import (GetTokenSerializer, SafeUserSerializer,
                           UserPasswordChangeSerializer, UserSerializer)
 
+from .paginator import CustomPageNumberPagination
+
+
 User = get_user_model()
 
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = SafeUserSerializer
-    pagination_class = LimitOffsetPagination
+    pagination_class = CustomPageNumberPagination
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -33,7 +36,6 @@ class UserViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, pk=None):
-        self.permission_classes = [IsAuthenticated, ]
         self.check_permissions(request)
         user = get_object_or_404(User, pk=pk)
         serializer = self.get_serializer(user)
@@ -47,7 +49,7 @@ class UserViewSet(ModelViewSet):
     )
     def me(self, request):
         user = get_object_or_404(User, username=request.user.username)
-        serializer = UserSerializer(user)
+        serializer = SafeUserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
