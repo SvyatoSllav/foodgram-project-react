@@ -50,6 +50,9 @@ class User(AbstractUser):
     def __str__(self) -> str:
         return f'{self.username}'
 
+    class Meta:
+        ordering = ['-id']
+
 
 class Follow(models.Model):
     created = models.DateTimeField(
