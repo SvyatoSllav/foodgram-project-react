@@ -9,9 +9,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
+from .serializers import (
+    GetTokenSerializer,
+    SafeUserSerializer,
+    UserPasswordChangeSerializer,
+    UserSerializer)
 from ..paginator import CustomPageNumberPagination
-from .serializers import (GetTokenSerializer, SafeUserSerializer,
-                          UserPasswordChangeSerializer, UserSerializer)
+
 
 User = get_user_model()
 
