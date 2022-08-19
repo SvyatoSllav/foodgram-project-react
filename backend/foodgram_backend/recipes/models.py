@@ -24,7 +24,7 @@ class Recipe(models.Model):
     )
     text = models.TextField()
     image = models.ImageField(
-        upload_to='recipe',
+        upload_to='recipe/images',
     )
     cooking_time = models.IntegerField(
         validators=[MinValueValidator(
@@ -33,8 +33,8 @@ class Recipe(models.Model):
                     )
                     ]
     )
-    ingridients = models.ManyToManyField(
-        'RecipeIngridients',
+    ingredients = models.ManyToManyField(
+        'Recipeingredients',
         related_name='recipe'
     )
     tag = models.ManyToManyField(
@@ -54,8 +54,8 @@ class Recipe(models.Model):
         using = using or router.db_for_write(self.__class__, instance=self)
         collector = Collector(using=using, origin=self)
         collector.collect([self], keep_parents=keep_parents)
-        for ingridient in self.ingridients.all():
-            ingridient.delete()
+        for ingredient in self.ingredients.all():
+            ingredient.delete()
         return collector.delete()
 
     def __str__(self) -> str:
@@ -65,7 +65,7 @@ class Recipe(models.Model):
         ordering = ['-created']
 
 
-class Ingridient(models.Model):
+class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
         db_index=True,
@@ -78,9 +78,9 @@ class Ingridient(models.Model):
         return f'{self.name}'
 
 
-class RecipeIngridients(models.Model):
-    ingridient = models.OneToOneField(
-        Ingridient,
+class RecipeIngredients(models.Model):
+    ingredient = models.OneToOneField(
+        Ingredient,
         related_name='recipe',
         on_delete=models.CASCADE
     )
@@ -89,7 +89,7 @@ class RecipeIngridients(models.Model):
     )
 
     def __str__(self) -> str:
-        return f'Ingridient: {self.ingridient.name}'
+        return f'ingredient: {self.ingredient.name}'
 
 
 class Tag(models.Model):
