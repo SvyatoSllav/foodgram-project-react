@@ -85,7 +85,10 @@ class RecipeIngredients(models.Model):
         on_delete=models.CASCADE
     )
     weight = models.IntegerField(
-        validators=[MinValueValidator(0.0, message='Значение не может быть меньше 0')],
+        validators=[MinValueValidator(
+            0.0, message='Значение не может быть меньше 0'
+            )
+        ],
     )
 
     def __str__(self) -> str:
