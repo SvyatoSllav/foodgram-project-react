@@ -86,8 +86,12 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super(RecipeSerializer, self).to_representation(instance)
-        for i in range(len(representation['ingredients'])):
-            representation['ingredients'][i] = representation['ingredients'][i]['ingredient']
+        # Converts {ingredients: [ingredient:{some_values}]}
+        # to {ingredients: [{some_values}]}
+        for ingredient_index in range(len(representation['ingredients'])):
+            ingredient = representation.get('ingredients')[ingredient_index]
+            ingredient_value = ingredient.get('ingredient')
+            representation['ingredients'][ingredient] = ingredient_value
         return representation
 
     def create(self, validated_data):
