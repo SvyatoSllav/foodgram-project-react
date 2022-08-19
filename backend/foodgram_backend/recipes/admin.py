@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Ingridient, Recipe, RecipeIngridients, Tag
+from .models import Ingredient, Recipe, RecipeIngredients, Tag
 
 
 
@@ -16,10 +16,10 @@ class RecipeAdmin(admin.ModelAdmin):
     readonly_fields = ('wish_list_count',)
 
 
-@admin.register(Ingridient)
+@admin.register(Ingredient)
 class IngridientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit',)
     list_filter = ('name',)
 
 
-admin.site.register(RecipeIngridients)
+admin.site.register(RecipeIngredients)
