@@ -4,11 +4,16 @@ from recipes.models import Ingredient, Recipe, Tag
 
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet, ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ViewSet
 
 
-from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 from .permissions import RecipePermission
+from .serializers import (
+    CreateUpdateRecipeSerializer,
+    IngredientSerializer,
+    RecipeSerializer,
+    TagSerializer
+)
 from ..paginator import CustomPageNumberPagination
 
 
@@ -43,6 +48,11 @@ class RecipeViewSet(ModelViewSet):
     serializer_class = RecipeSerializer
     permission_classes = (RecipePermission,)
     pagination_class = CustomPageNumberPagination
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'partial_update'):
+            return CreateUpdateRecipeSerializer
+        return RecipeSerializer
 
     def get_queryset(self):
         req_query_params = self.request.query_params
