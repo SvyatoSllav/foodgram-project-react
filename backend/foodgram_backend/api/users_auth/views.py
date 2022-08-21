@@ -9,13 +9,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
+from users.models import Follow
+
 from .serializers import (
+    FollowListSerializer,
     GetTokenSerializer,
     SafeUserSerializer,
     UserPasswordChangeSerializer,
-    UserSerializer)
+    UserSerializer
+)
 from ..paginator import CustomPageNumberPagination
-
 
 User = get_user_model()
 
@@ -28,6 +31,8 @@ class UserViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return UserSerializer
+        elif self.action in ('subscriptions', 'add_subscriptions'):
+            return FollowListSerializer
         return SafeUserSerializer
 
     def create(self, request):
@@ -63,13 +68,73 @@ class UserViewSet(ModelViewSet):
         user = get_object_or_404(User, username=request.user.username)
         serializer = UserPasswordChangeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        print(serializer.data)
-
         validated_data = serializer.data
         new_password = validated_data.get('new_password', user.password)
         user.password = new_password
         user.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=False,
+        methods=['get'],
+        url_path='subscriptions',
+        permission_classes=[IsAuthenticated],
+        pagination_class=CustomPageNumberPagination
+    )
+    def subscriptions(self, request):
+        current_user = self.request.user
+        queryset = Follow.objects.filter(followers=current_user)
+        queryset = self.filter_queryset(queryset)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=False,
+        methods=['post', 'delete'],
+        url_path='(?P<user_pk>[^/.]+)/subscribe',
+        permission_classes=[IsAuthenticated],
+    )
+    def add_subscriptions(self, request, user_pk=None):
+        if request.method == 'POST':
+            current_user = self.request.user
+            following = get_object_or_404(User, id=int(user_pk))
+
+            instance, created = Follow.objects.get_or_create(
+                following=following,
+                followers=current_user
+            )
+            if created:
+                serializer = self.get_serializer(instance, many=False)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_200_OK
+                )
+
+            return Response(
+                'Подписка уже существует',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        elif request.method == 'DELETE':
+            current_user = self.request.user
+            following = get_object_or_404(User, id=int(user_pk))
+
+            instance = get_object_or_404(
+                Follow,
+                following=following,
+                followers=current_user
+            )
+            instance.delete()
+
+            return Response(
+                'Успешная отписка',
+                status=status.HTTP_204_NO_CONTENT
+            )
 
 
 class CustomAuthToken(APIView):
