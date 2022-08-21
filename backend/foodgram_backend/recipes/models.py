@@ -20,7 +20,8 @@ class Recipe(models.Model):
         related_name='recipe'
     )
     name = models.CharField(
-        max_length=200
+        max_length=200,
+        unique=True
     )
     text = models.TextField()
     image = models.ImageField(
@@ -35,11 +36,13 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         'Recipeingredients',
-        related_name='recipe'
+        related_name='recipe',
+        blank=False
     )
     tag = models.ManyToManyField(
         'Tag',
-        related_name='recipe'
+        related_name='recipe',
+        blank=False
     )
 
     def wish_list_count(self):
@@ -79,10 +82,11 @@ class Ingredient(models.Model):
 
 
 class RecipeIngredients(models.Model):
-    ingredient = models.OneToOneField(
+    ingredient = models.ForeignKey(
         Ingredient,
         related_name='recipe',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        unique=False
     )
     weight = models.IntegerField(
         validators=[MinValueValidator(
