@@ -13,6 +13,7 @@ from .users_auth.views import (
     UserViewSet,
 )
 
+
 router = SimpleRouter()
 router.register('users', UserViewSet, basename='users')
 router.register('tags', TagViewSet, basename='tags')
