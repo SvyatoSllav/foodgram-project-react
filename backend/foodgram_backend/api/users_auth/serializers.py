@@ -38,7 +38,10 @@ class SafeUserSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         user = self._user(obj)
         if not user.is_anonymous:
-            return Follow.objects.filter(follower=user, following=obj).exists()
+            return Follow.objects.filter(
+                followers=user,
+                following=obj
+            ).exists()
 
     def _user(self, obj):
         request = self.context.get('request', None)
@@ -82,3 +85,36 @@ class GetTokenSerializer(serializers.ModelSerializer):
             'password',
             'email',
         )
+
+
+class FollowListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Follow
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        fields_amount = request.query_params.get('recipes_limit')
+        if fields_amount:
+            recipes = instance.following.recipe.all()[:int(fields_amount)]
+        else:
+            recipes = instance.following.recipe.all()
+        recipe_to_representation = [
+            {
+                'id': recipe.id,
+                'name': recipe.name,
+                'image': 'http://foodgram.example.org' + recipe.image.url,
+                'cooking_time': recipe.cooking_time,
+            } for recipe in recipes]
+
+        representation = {
+            'email': instance.following.email,
+            'id': instance.following.id,
+            'username': instance.following.username,
+            'first_name': instance.following.first_name,
+            'last_name': instance.following.last_name,
+            'is_subscribed': True,
+            'recipes': recipe_to_representation,
+            'recipes_count': instance.following.recipe.count()
+        }
+        return representation
