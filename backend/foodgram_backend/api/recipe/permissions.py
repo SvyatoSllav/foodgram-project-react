@@ -15,5 +15,5 @@ class RecipePermission(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if view.action in ['partial_update', 'destroy']:
-            return obj.author == request.User
+            return obj.author == request.user
         return True
