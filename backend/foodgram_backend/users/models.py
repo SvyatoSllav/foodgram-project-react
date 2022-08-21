@@ -59,21 +59,21 @@ class Follow(models.Model):
         auto_now_add=True,
         db_index=True
     )
-    follower = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='follower'
-    )
     following = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='following'
     )
+    followers = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='followers'
+    )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['follower', 'following'],
+                fields=['followers', 'following'],
                 name='unique_followers'
             )
         ]
@@ -81,8 +81,8 @@ class Follow(models.Model):
         ordering = ['-created']
 
     def clean(self) -> None:
-        if self.follower == self.following:
+        if self.followers == self.following:
             raise ValidationError('Вы не можете подписываться на себя')
 
     def __str__(self) -> str:
-        return f'{self.follower} follows {self.following}'
+        return f'{self.followers} follows {self.following}'
