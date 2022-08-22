@@ -2,10 +2,10 @@ from pathlib import Path
 
 from borb.pdf import (
     Document,
+    PDF,
     Page,
-    SingleColumnLayout,
     Paragraph,
-    PDF
+    SingleColumnLayout,
 )
 
 
