@@ -25,7 +25,6 @@ from ..paginator import CustomPageNumberPagination
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-print(BASE_DIR)
 
 
 class TagViewSet(ViewSet):
@@ -55,8 +54,6 @@ class IngredientViewSet(ViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
-    queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
     permission_classes = (RecipePermission,)
     pagination_class = CustomPageNumberPagination
 
