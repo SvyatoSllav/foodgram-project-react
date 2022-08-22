@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_list_or_404, get_object_or_404
 
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -44,7 +44,7 @@ class UserViewSet(ModelViewSet):
 
     @action(
         detail=False,
-        methods=['get', ],
+        methods=['get'],
         url_path='me',
         permission_classes=[IsAuthenticated]
     )
@@ -55,7 +55,7 @@ class UserViewSet(ModelViewSet):
 
     @action(
         detail=False,
-        methods=['post', ],
+        methods=['post'],
         url_path='set_password',
         permission_classes=[IsAuthenticated]
     )
@@ -77,7 +77,7 @@ class UserViewSet(ModelViewSet):
     )
     def subscriptions(self, request):
         current_user = request.user
-        queryset = Follow.objects.filter(followers=current_user)
+        queryset = get_list_or_404(Follow, followers=current_user)
         queryset = self.filter_queryset(queryset)
         page = self.paginate_queryset(queryset)
         if page is not None:
