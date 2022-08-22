@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -28,24 +28,19 @@ class UserViewSet(ModelViewSet):
     serializer_class = SafeUserSerializer
     pagination_class = CustomPageNumberPagination
 
-    def get_serializer_class(self):
+    def get_permissions(self):
         if self.action == 'retrieve':
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
+    def get_serializer_class(self):
+        if self.action == 'create':
             return UserSerializer
         elif self.action in ('subscriptions', 'add_subscriptions'):
             return FollowListSerializer
+        elif self.action == 'set_password':
+            return UserPasswordChangeSerializer
         return SafeUserSerializer
-
-    def create(self, request):
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def retrieve(self, request, pk=None):
-        self.check_permissions(request)
-        user = get_object_or_404(User, pk=pk)
-        serializer = self.get_serializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=False,
@@ -55,7 +50,7 @@ class UserViewSet(ModelViewSet):
     )
     def me(self, request):
         user = get_object_or_404(User, username=request.user.username)
-        serializer = SafeUserSerializer(user)
+        serializer = self.get_serializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
@@ -66,10 +61,9 @@ class UserViewSet(ModelViewSet):
     )
     def set_password(self, request):
         user = get_object_or_404(User, username=request.user.username)
-        serializer = UserPasswordChangeSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        validated_data = serializer.data
-        new_password = validated_data.get('new_password', user.password)
+        new_password = serializer.data.get('new_password', user.password)
         user.password = new_password
         user.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -82,7 +76,7 @@ class UserViewSet(ModelViewSet):
         pagination_class=CustomPageNumberPagination
     )
     def subscriptions(self, request):
-        current_user = self.request.user
+        current_user = request.user
         queryset = Follow.objects.filter(followers=current_user)
         queryset = self.filter_queryset(queryset)
         page = self.paginate_queryset(queryset)
@@ -155,9 +149,8 @@ class CustomAuthToken(APIView):
 class DeleteToken(APIView):
 
     def post(self, request):
-        user = request.user
-        if not user.is_anonymous:
-            token = Token.objects.get(user=user)
+        if not request.user.is_anonymous:
+            token = get_object_or_404(Token, user=request.user)
             token.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
