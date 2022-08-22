@@ -8,7 +8,7 @@ class RecipePermission(permissions.BasePermission):
             return True
         elif view.action == 'create':
             return request.user.is_authenticated
-        if view.action in ['partial_update', 'destroy']:
+        elif view.action in ['partial_update', 'destroy']:
             return True
         else:
             return False
