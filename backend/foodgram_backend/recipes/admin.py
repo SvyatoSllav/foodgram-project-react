@@ -22,4 +22,6 @@ class IngridientAdmin(admin.ModelAdmin):
     list_filter = ('name',)
 
 
-admin.site.register(RecipeIngredients)
+@admin.register(RecipeIngredients)
+class RecipeIngredients(admin.ModelAdmin):
+    list_display = ('ingredient', 'weight')
