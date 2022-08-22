@@ -94,11 +94,14 @@ class FollowListSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         request = self.context.get('request')
+
         fields_amount = request.query_params.get('recipes_limit')
+
         if fields_amount:
             recipes = instance.following.recipe.all()[:int(fields_amount)]
         else:
             recipes = instance.following.recipe.all()
+
         recipe_to_representation = [
             {
                 'id': recipe.id,
