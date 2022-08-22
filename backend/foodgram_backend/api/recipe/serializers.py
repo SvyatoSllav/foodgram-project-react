@@ -52,13 +52,14 @@ class RecipeingredientsSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(
         source='tag',
-        many=True
+        many=True,
+        read_only=True
     )
     author = SafeUserSerializer(
         read_only=True,
         many=False
     )
-    ingredients = RecipeingredientsSerializer(many=True,)
+    ingredients = RecipeingredientsSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField()
