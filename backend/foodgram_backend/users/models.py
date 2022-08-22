@@ -56,6 +56,7 @@ class User(AbstractUser):
 
 class Follow(models.Model):
     created = models.DateTimeField(
+        'created',
         auto_now_add=True,
         db_index=True
     )
@@ -77,7 +78,6 @@ class Follow(models.Model):
                 name='unique_followers'
             )
         ]
-
         ordering = ['-created']
 
     def clean(self) -> None:
