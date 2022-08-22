@@ -2,8 +2,16 @@ from django.urls import include, path
 
 from rest_framework.routers import SimpleRouter
 
-from .recipe.views import IngredientViewSet, RecipeViewSet, TagViewSet
-from .users_auth.views import CustomAuthToken, DeleteToken, UserViewSet
+from .recipe.views import (
+    IngredientViewSet,
+    RecipeViewSet,
+    TagViewSet
+)
+from .users_auth.views import (
+    CustomAuthToken,
+    DeleteToken,
+    UserViewSet
+)
 
 
 router = SimpleRouter()
