@@ -59,7 +59,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         read_only=True,
         many=False
     )
-    ingredients = RecipeingredientsSerializer(many=True, read_only=True)
+    ingredients = RecipeingredientsSerializer(
+        many=True,
+        read_only=True
+    )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField()
@@ -93,8 +96,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         representation = super(
             RecipeSerializer, self).to_representation(instance)
 
-        # Converts {ingredients: [ingredient:{some_values}]}
-        # to {ingredients: [{some_values}]}
+        # Converts {ingredients: [ ingredient : {some_values} ]}
+        # to {ingredients: [ {some_values} ]}
         for ingredient_index in range(len(representation['ingredients'])):
             ingredient = representation.get('ingredients')[ingredient_index]
             ingredient_value = ingredient.get('ingredient')
@@ -154,19 +157,19 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
                 'name': tag.name,
                 'color': tag.color,
                 'slug': tag.slug
-            } for tag in tags
-        ]
+            } for tag in tags]
 
         author = instance.author
+        is_subscribed = Follow.objects.filter(
+                                            followers=current_user,
+                                            following=author).exists()
         author_to_representation = {
             'email': author.email,
             'id': author.id,
             'username': author.username,
             'first_name': author.first_name,
             'last_name': author.last_name,
-            'is_subscribed': Follow.objects.filter(
-                                                followers=current_user,
-                                                following=author).exists()
+            'is_subscribed': is_subscribed
         }
 
         ingredients = instance.ingredients.all()
@@ -212,10 +215,11 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
 
         instance.ingredients.all().delete()
         for value in ingredients:
-            recipe_ingredient, created = RecipeIngredients.objects.get_or_create(
-                ingredient=Ingredient.objects.get(id=value.get('id')),
-                weight=value.get('amount')
-            )
+            recipe_ingredient, created = (
+                RecipeIngredients.objects.get_or_create(
+                    ingredient=Ingredient.objects.get(id=value.get('id')),
+                    weight=value.get('amount')
+                ))
             instance.ingredients.add(recipe_ingredient)
 
         instance.tag.clear()
