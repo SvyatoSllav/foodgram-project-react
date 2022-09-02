@@ -142,8 +142,9 @@ class CustomAuthToken(APIView):
         password = validated_data.get('password')
 
         user = get_object_or_404(User, email=email, password=password)
-        token = Token.objects.create(user=user)
-        return Response({'Token': token.key}, status=status.HTTP_200_OK)
+        token, is_exists = Token.objects.get_or_create(user=user)
+        print(token)
+        return Response({'auth_token': token.key}, status=status.HTTP_200_OK)
 
 
 class DeleteToken(APIView):

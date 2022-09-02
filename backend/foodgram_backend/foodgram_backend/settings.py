@@ -26,8 +26,7 @@ SECRET_KEY = 'django-insecure-c4@^ol6y!7@!$s!0puhewn#g2b24k8cm$qj@ptkvrjd+$hy-#j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['web', 'localhost', '127.0.0.1', ]
 
 # Application definition
 
@@ -42,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 
     # local apps
-    'users.apps.UsersConfig',
+    'users',
     'recipes.apps.RecipesConfig',
     'api.apps.ApiConfig'
 ]
@@ -85,13 +84,12 @@ DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE', default="django.db.backends.postgresql"),
         'NAME': os.getenv('DB_NAME', default="postgres"),
-        'USER': os.getenv('POSTGRES_USER', default="postgress"),
+        'USER': os.getenv('POSTGRES_USER', default="evencat"),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', default="alta2002"),
         'HOST': os.getenv('DB_HOST', default="localhost"),
         'PORT': os.getenv('DB_PORT', default="5432")
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -139,10 +137,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

@@ -98,6 +98,10 @@ class RecipeSerializer(serializers.ModelSerializer):
 
         # Converts {ingredients: [ ingredient : {some_values} ]}
         # to {ingredients: [ {some_values} ]}
+        representation['image'] = (
+            representation['image'][:7] +
+            'localhost' + representation['image'][15:]
+        )
         for ingredient_index in range(len(representation['ingredients'])):
             ingredient = representation.get('ingredients')[ingredient_index]
             ingredient_value = ingredient.get('ingredient')
@@ -190,6 +194,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
             recipe__id=instance.id
             ).exists()
 
+        image = 'http://localhost/instance.image/' + instance.image.url
         representation = {
             'id': instance.id,
             'tags': tags_fields_to_representation,
@@ -198,7 +203,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
             'is_favorited': is_favorited,
             'is_in_shopping_cart': is_in_shopping_cart,
             'name': instance.name,
-            'image': 'http://foodgram.example.org/' + instance.image.url,
+            'image': image,
             'test': instance.text,
             'cooking_time': instance.cooking_time
         }

@@ -106,7 +106,7 @@ class FollowListSerializer(serializers.ModelSerializer):
             {
                 'id': recipe.id,
                 'name': recipe.name,
-                'image': 'http://foodgram.example.org' + recipe.image.url,
+                'image': 'http://localhost' + recipe.image.url,
                 'cooking_time': recipe.cooking_time,
             } for recipe in recipes]
 
