@@ -16,7 +16,7 @@ from .serializers import (
     GetTokenSerializer,
     SafeUserSerializer,
     UserPasswordChangeSerializer,
-    UserSerializer
+    UserSerializer,
 )
 from ..paginator import CustomPageNumberPagination
 
@@ -29,24 +29,24 @@ class UserViewSet(ModelViewSet):
     pagination_class = CustomPageNumberPagination
 
     def get_permissions(self):
-        if self.action == 'retrieve':
+        if self.action == "retrieve":
             return [IsAuthenticated()]
         return [AllowAny()]
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action == "create":
             return UserSerializer
-        elif self.action in ('subscriptions', 'add_subscriptions'):
+        elif self.action in ("subscriptions", "add_subscriptions"):
             return FollowListSerializer
-        elif self.action == 'set_password':
+        elif self.action == "set_password":
             return UserPasswordChangeSerializer
         return SafeUserSerializer
 
     @action(
         detail=False,
-        methods=['get'],
-        url_path='me',
-        permission_classes=[IsAuthenticated]
+        methods=["get"],
+        url_path="me",
+        permission_classes=[IsAuthenticated],
     )
     def me(self, request):
         user = get_object_or_404(User, username=request.user.username)
@@ -55,25 +55,25 @@ class UserViewSet(ModelViewSet):
 
     @action(
         detail=False,
-        methods=['post'],
-        url_path='set_password',
-        permission_classes=[IsAuthenticated]
+        methods=["post"],
+        url_path="set_password",
+        permission_classes=[IsAuthenticated],
     )
     def set_password(self, request):
         user = get_object_or_404(User, username=request.user.username)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        new_password = serializer.data.get('new_password', user.password)
+        new_password = serializer.data.get("new_password", user.password)
         user.password = new_password
         user.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=False,
-        methods=['get'],
-        url_path='subscriptions',
+        methods=["get"],
+        url_path="subscriptions",
         permission_classes=[IsAuthenticated],
-        pagination_class=CustomPageNumberPagination
+        pagination_class=CustomPageNumberPagination,
     )
     def subscriptions(self, request):
         current_user = request.user
@@ -89,72 +89,58 @@ class UserViewSet(ModelViewSet):
 
     @action(
         detail=False,
-        methods=['post', 'delete'],
-        url_path='(?P<user_pk>[^/.]+)/subscribe',
+        methods=["post", "delete"],
+        url_path="(?P<user_pk>[^/.] )/subscribe",
         permission_classes=[IsAuthenticated],
     )
     def add_subscriptions(self, request, user_pk=None):
-        if request.method == 'POST':
+        if request.method == "POST":
             current_user = self.request.user
             following = get_object_or_404(User, id=int(user_pk))
 
             instance, created = Follow.objects.get_or_create(
-                following=following,
-                followers=current_user
+                following=following, followers=current_user
             )
             if created:
                 serializer = self.get_serializer(instance, many=False)
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_200_OK
-                )
+                return Response(serializer.data, status=status.HTTP_200_OK)
 
             return Response(
-                'Подписка уже существует',
-                status=status.HTTP_400_BAD_REQUEST
+                "Подписка уже существует", status=status.HTTP_400_BAD_REQUEST
             )
 
-        elif request.method == 'DELETE':
+        elif request.method == "DELETE":
             current_user = self.request.user
             following = get_object_or_404(User, id=int(user_pk))
 
             instance = get_object_or_404(
-                Follow,
-                following=following,
-                followers=current_user
+                Follow, following=following, followers=current_user
             )
             instance.delete()
 
-            return Response(
-                'Успешная отписка',
-                status=status.HTTP_204_NO_CONTENT
-            )
+            return Response("Успешная отписка", status=status.HTTP_204_NO_CONTENT)
 
 
 class CustomAuthToken(APIView):
-
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         validated_data = serializer.data
-        email = validated_data.get('email')
-        password = validated_data.get('password')
+        email = validated_data.get("email")
+        password = validated_data.get("password")
 
         user = get_object_or_404(User, email=email, password=password)
         token, is_exists = Token.objects.get_or_create(user=user)
-        print(token)
-        return Response({'auth_token': token.key}, status=status.HTTP_200_OK)
+        return Response({"auth_token": token.key}, status=status.HTTP_200_OK)
 
 
 class DeleteToken(APIView):
-
     def post(self, request):
         if not request.user.is_anonymous:
             token = get_object_or_404(Token, user=request.user)
             token.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            'User is not authenticated',
-            status=status.HTTP_401_UNAUTHORIZED
+            "User is not authenticated", status=status.HTTP_401_UNAUTHORIZED
         )

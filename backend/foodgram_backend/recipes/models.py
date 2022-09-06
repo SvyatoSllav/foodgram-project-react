@@ -12,40 +12,24 @@ User = get_user_model()
 
 
 class Recipe(models.Model):
-    created = models.DateTimeField(
-        auto_now_add=True,
-        db_index=True
-    )
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
     author = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='recipe'
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="recipe"
     )
-    name = models.CharField(
-        max_length=200,
-        unique=True
-    )
+    name = models.CharField(max_length=200, unique=True)
     text = models.TextField()
     image = models.ImageField(
-        upload_to='recipe/images',
+        upload_to="recipe/images",
     )
     cooking_time = models.IntegerField(
-        validators=[MinValueValidator(
-                    1,
-                    message='Время приготовления не может быть меньше 1'
-                    )
-                    ]
+        validators=[
+            MinValueValidator(1, message="Время приготовления не может быть меньше 1")
+        ]
     )
     ingredients = models.ManyToManyField(
-        'Recipeingredients',
-        related_name='recipe',
-        blank=False
+        "Recipeingredients", related_name="recipe", blank=False
     )
-    tag = models.ManyToManyField(
-        'Tag',
-        related_name='recipe',
-        blank=False
-    )
+    tag = models.ManyToManyField("Tag", related_name="recipe", blank=False)
 
     def wish_list_count(self):
         return self.user_wishlist.count()
@@ -64,10 +48,10 @@ class Recipe(models.Model):
         return collector.delete()
 
     def __str__(self) -> str:
-        return f'{self.name}'
+        return f"{self.name}"
 
     class Meta:
-        ordering = ['-created']
+        ordering = ["-created"]
 
 
 class Ingredient(models.Model):
@@ -75,30 +59,22 @@ class Ingredient(models.Model):
         max_length=200,
         db_index=True,
     )
-    measurement_unit = models.CharField(
-        max_length=200
-    )
+    measurement_unit = models.CharField(max_length=200)
 
     def __str__(self) -> str:
-        return f'{self.name}'
+        return f"{self.name}"
 
 
 class RecipeIngredients(models.Model):
     ingredient = models.ForeignKey(
-        Ingredient,
-        related_name='recipe',
-        on_delete=models.CASCADE,
-        unique=False
+        Ingredient, related_name="recipe", on_delete=models.CASCADE, unique=False
     )
     weight = models.IntegerField(
-        validators=[MinValueValidator(
-            0.0, message='Значение не может быть меньше 0'
-            )
-        ],
+        validators=[MinValueValidator(0.0, message="Значение не может быть меньше 0")],
     )
 
     def __str__(self) -> str:
-        return f'ingredient: {self.ingredient.name}'
+        return f"ingredient: {self.ingredient.name}"
 
 
 class Tag(models.Model):
@@ -106,21 +82,11 @@ class Tag(models.Model):
         max_length=200,
         db_index=True,
     )
-    slug = models.SlugField(
-        max_length=200,
-        unique=True
-    )
-    color = models.CharField(
-        max_length=7,
-        default="#ffffff"
-    )
+    slug = models.SlugField(max_length=200, unique=True)
+    color = models.CharField(max_length=7, default="#ffffff")
 
     def colored_name(self):
-        return format_html(
-            '<span style="color: #{};">{}</span>',
-            self.color,
-            self.name
-        )
+        return format_html('<span style="color: #{};">{}</span>', self.color, self.name)
 
     def __str__(self) -> str:
-        return f'{self.name}'
+        return f"{self.name}"

@@ -9,15 +9,14 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = (
-            'email',
-            'username',
-            'first_name',
-            'last_name',
-            'password',
+            "email",
+            "username",
+            "first_name",
+            "last_name",
+            "password",
         )
 
 
@@ -26,25 +25,15 @@ class SafeUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed'
-        )
+        fields = ("email", "id", "username", "first_name", "last_name", "is_subscribed")
 
     def get_is_subscribed(self, obj):
         user = self._user(obj)
         if not user.is_anonymous:
-            return Follow.objects.filter(
-                followers=user,
-                following=obj
-            ).exists()
+            return Follow.objects.filter(followers=user, following=obj).exists()
 
     def _user(self, obj):
-        request = self.context.get('request', None)
+        request = self.context.get("request", None)
         if request:
             return request.user
         return obj
@@ -52,18 +41,15 @@ class SafeUserSerializer(serializers.ModelSerializer):
 
 class UserPasswordChangeSerializer(serializers.ModelSerializer):
     new_password = serializers.CharField()
-    current_password = serializers.CharField(source='password')
+    current_password = serializers.CharField(source="password")
 
     class Meta:
         model = User
-        fields = (
-            'new_password',
-            'current_password'
-        )
+        fields = ("new_password", "current_password")
 
     def validate_current_password(self, value):
         if not User.objects.filter(password=value).exists():
-            raise ValidationError('Пароль неверный')
+            raise ValidationError("Пароль неверный")
         return value
 
     def validate_new_password(self, value):
@@ -71,34 +57,32 @@ class UserPasswordChangeSerializer(serializers.ModelSerializer):
         return value
 
     def _user(self, obj):
-        request = self.context.get('request', None)
+        request = self.context.get("request", None)
         if request:
             return request.user
         return obj
 
 
 class GetTokenSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = (
-            'password',
-            'email',
+            "password",
+            "email",
         )
 
 
 class FollowListSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Follow
 
     def to_representation(self, instance):
-        request = self.context.get('request')
+        request = self.context.get("request")
 
-        fields_amount = request.query_params.get('recipes_limit')
+        fields_amount = request.query_params.get("recipes_limit")
 
         if fields_amount:
-            recipes = instance.following.recipe.all()[:int(fields_amount)]
+            recipes = instance.following.recipe.all()[: int(fields_amount)]
         else:
             recipes = instance.following.recipe.all()
 
