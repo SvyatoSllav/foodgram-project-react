@@ -23,7 +23,6 @@ router.register('recipes', RecipeViewSet, basename='recipes')
 urlpatterns = [
     path('', include(router.urls)),
 
-    # Auth urls
     path('auth/token/login/', CustomAuthToken.as_view()),
     path('auth/token/logout/', DeleteToken.as_view()),
 ]

@@ -2,7 +2,6 @@ from pathlib import Path
 
 from django.http.response import HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
-# from django.core.servers.basehttp import FileWrapper
 
 from recipes.models import Ingredient, Recipe, Tag
 

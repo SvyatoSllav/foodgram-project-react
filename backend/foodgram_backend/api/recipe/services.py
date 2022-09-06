@@ -7,24 +7,21 @@ from borb.pdf import (
     Paragraph,
     SingleColumnLayout,
 )
-
+import logging
+import traceback
 
 def create_file(recipes, username):
     BASE_DIR = Path(__file__).resolve().parent.parent.parent
     try:
-        # create an empty Document
         pdf = Document()
 
-        # add an empty Page
         page = Page()
         pdf.add_page(page)
 
-        # use a PageLayout (SingleColumnLayout in this case)
         layout = SingleColumnLayout(page)
 
         ingredients = {}
 
-        # add a Paragraph object
         for recipe in recipes.all():
 
             all_recipe_ingredients = recipe.ingredients.all()
@@ -53,5 +50,5 @@ def create_file(recipes, username):
         with open(Path(f'{path_to_user_media}/output.pdf'), "wb") as pdf_file_handle:
             PDF.dumps(pdf_file_handle, pdf)
         return 'Created'
-    except Exception:
-        raise Exception
+    except Exception as e:
+        logging.error(traceback.format_exc())

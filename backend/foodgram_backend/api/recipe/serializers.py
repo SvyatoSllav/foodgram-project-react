@@ -1,11 +1,12 @@
 from api.users_auth.serializers import SafeUserSerializer
-
 from drf_extra_fields.fields import Base64ImageField
-
-from recipes.models import Ingredient, Recipe, RecipeIngredients, Tag
-
+from recipes.models import (
+    Ingredient,
+    Recipe,
+    RecipeIngredients,
+    Tag
+)
 from rest_framework import serializers
-
 from users.models import Follow
 
 
@@ -96,8 +97,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         representation = super(
             RecipeSerializer, self).to_representation(instance)
 
-        # Converts {ingredients: [ ingredient : {some_values} ]}
-        # to {ingredients: [ {some_values} ]}
         representation['image'] = (
             representation['image'][:7] +
             'localhost' + representation['image'][15:]
@@ -165,8 +164,9 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
 
         author = instance.author
         is_subscribed = Follow.objects.filter(
-                                            followers=current_user,
-                                            following=author).exists()
+            followers=current_user,
+            following=author
+        ).exists()
         author_to_representation = {
             'email': author.email,
             'id': author.id,
