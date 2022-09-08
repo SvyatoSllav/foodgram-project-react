@@ -99,7 +99,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
         representation['image'] = (
             representation['image'][:7] +
-            '158.160.1.184' + representation['image'][15:]
+            '51.250.102.77' + representation['image'][15:]
         )
         for ingredient_index in range(len(representation['ingredients'])):
             ingredient = representation.get('ingredients')[ingredient_index]
@@ -194,7 +194,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
             recipe__id=instance.id
             ).exists()
 
-        image = 'http://158.160.1.184/instance.image/' + instance.image.url
+        image = 'http://51.250.102.77/instance.image/' + instance.image.url
         representation = {
             'id': instance.id,
             'tags': tags_fields_to_representation,
