@@ -90,7 +90,7 @@ class FollowListSerializer(serializers.ModelSerializer):
             {
                 'id': recipe.id,
                 'name': recipe.name,
-                'image': 'http://localhost' + recipe.image.url,
+                'image': 'http://51.250.102.77' + recipe.image.url,
                 'cooking_time': recipe.cooking_time,
             } for recipe in recipes]
 
