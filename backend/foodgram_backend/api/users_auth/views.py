@@ -90,7 +90,7 @@ class UserViewSet(ModelViewSet):
     @action(
         detail=False,
         methods=["post", "delete"],
-        url_path="(?P<user_pk>[^/.] )/subscribe",
+        url_path="(?P<user_pk>[^/.])/subscribe",
         permission_classes=[IsAuthenticated],
     )
     def add_subscriptions(self, request, user_pk=None):
